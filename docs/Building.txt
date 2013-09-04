@@ -1,0 +1,34 @@
+Cronus - Cabal Online Emulator
+------------------------------
+
+Requirements to Build
+---------------------
+
+* Apache Ant(TM) >= 1.8.4
+	Description: Maybe work on older versions but not tested, JDK maybe come with ant,
+		     you only need to set it on you PATH to work with.
+	Download   : http://ant.apache.org/		
+
+* Java™ Platform, Standard Edition 7 Development Kit
+	Description: Sources is made for Java 1.7, then you will need development kit to
+		     compile.
+	Download    : http://www.oracle.com/technetwork/java/javase/downloads/index.html
+
+How to build
+------------
+
+Go to root directory where file LICENSE.txt is located using command line then type: "ant"
+without " and press <ENTER>, wait download of libraries to complete, them release will be
+located on dist dir, but you can get uncompressed version from build dir too.
+
+Database
+--------
+
+The data for database is not maintened on GitHub, only structures you can get it from any
+compatible release.
+
+FAQ
+---
+
+Q: Every time i want to build the project i need to download libs
+A: No only on first time, but lib npersistence is downloaded every time for now.

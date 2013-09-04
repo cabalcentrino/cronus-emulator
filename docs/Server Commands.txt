@@ -1,0 +1,32 @@
+Legend: {Optional} 
+
+.cashset Value
+	   |________________________________ Amount of cash (0 - 4294967295)
+
+	Set current logged-in player cash amount
+	
+.dc
+
+	Disconnect current logged-in player
+
+.itemadd ItemId {+1-+15} {0-4} {0-7} {0-1}
+           |        |      |    |      |
+           |        |      |    |      |___ Amp effect, only if craft level > 0
+           |        |      |    |__________ Craft effect level, only if craft effect > 0 ( 1 AMP effect )
+           |        |      |_______________ Slot count 
+           |        |______________________ Equipment upgrade level
+	   |_______________________________ ItemId look at cabal_msg.enc to ids
+
+	Add the item to the cash inventory, if you close the window you need to wait the client check
+	cash inventory or reconnect to get other itens.
+
+mobspawn MobId
+	   |_______________________________ MobId look at cabal_msg.enc to ids
+
+	Spawn mob if the entered id on current player position
+	(Only works if mob 1 for now )
+
+.warehouse
+
+	Open current logged-in player warehouse everywhere
+

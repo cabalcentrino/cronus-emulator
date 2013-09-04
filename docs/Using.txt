@@ -1,0 +1,19 @@
+Cronus - Cabal Online Emulator
+------------------------------
+
+Installation
+------------
+
+Get the release version or build it from source, extract the file on a folder,
+Install MySQL and make sure it is on your PATH, then go inside sql folder and do:
+
+* Windows
+run "import_database_user_win.bat" to create the database user for using then
+run "import_database_win.bat" and wait it to finish, then you only need to start 
+the bins and everything should be working.
+
+* Linux
+run "mysql -u root -pYourRootPassword < db_user.sql" to create user then
+run "import_database_linux.sh" and wait it to finish, then you only need to start 
+the bins and everything should be working.
+

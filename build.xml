@@ -1,0 +1,208 @@
+<project name="CronusEmulator" default="release">
+	
+	<!-- ==============================================================Properties============================================================================== -->
+
+        <property environment="env" />
+
+        <!-- Versions -->
+	<property name="cronus.version" value="0.1.2" />
+        <property name="lib.slf4j.version" value="1.7.2" />
+        <property name="lib.log4j.version" value="1.2.17" />
+        <property name="lib.log4j.major.version" value="12" />
+        <property name="lib.mysqljdbc.version" value="5.1.18" />
+
+        <!-- Directories -->
+        <property name="main.dir" value="./" />
+        <property name="download.dir" value="downloads" />
+        <property name="download.tmp" value="${download.dir}/tmp" />
+        <property name="build.dir" value="build" />
+	<property name="dist.dir" value="dist" />
+        <property name="libs.dir" value="libs" />
+
+	<!-- ==============================================================Conditions============================================================================== -->
+
+
+	<condition property="have-sl4j-zip">
+		<available file="${download.dir}/slf4j-${lib.slf4j.version}.zip" />
+	</condition>
+
+	<condition property="have-mysqljdbc-zip">
+		<available file="${download.dir}/mysql-connector-java-${lib.mysqljdbc.version}.zip" />
+	</condition>
+
+	<condition property="have-log4j-jar">
+		<available file="${libs.dir}/log4j-${lib.log4j.version}.jar" />
+	</condition>
+
+	<condition property="have-mysqljdbc-jar">
+		<available file="${libs.dir}/mysql-connector-java-${lib.mysqljdbc.version}-bin.jar" />
+	</condition>
+
+	<condition property="have-sl4j-jars">
+		<and>
+			<available file="${libs.dir}/slf4j-api-${lib.slf4j.version}.jar" />
+			<available file="${libs.dir}/slf4j-log4j${lib.log4j.major.version}-${lib.slf4j.version}.jar" />
+		</and>
+	</condition>
+
+	<condition property="have-npersistence-jar">
+		<available file="${libs.dir}/npersistence.jar" />
+	</condition>
+
+	<condition property="have-db-data">
+		<available file="sql/db_data.sql" />
+	</condition>
+
+
+	<!-- ==============================================================Build Tree============================================================================== -->
+	
+	<target name="build-tree">
+		<mkdir dir="${download.dir}" />
+		<mkdir dir="${download.tmp}" />
+		<mkdir dir="${libs.dir}" />		
+	</target>			
+
+	<target name="dist-tree">
+		<delete dir="${build.dir}" />
+		<delete dir="${dist.dir}" />
+	
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${build.dir}/docs" />
+		<mkdir dir="${build.dir}/lib" />
+		<mkdir dir="${build.dir}/config" />
+		<mkdir dir="${build.dir}/db" />
+	</target>
+	
+
+	<!-- ============================================================Download  Tasks============================================================================ -->
+
+	<target name="download-sl4j" depends="build-tree" unless="have-sl4j-zip">
+		<echo message="Downloading SL4J ${lib.slf4j.version}..." />
+		<get src="http://www.slf4j.org/dist/slf4j-${lib.slf4j.version}.zip" verbose="true" dest="${download.dir}/slf4j-${lib.slf4j.version}.zip" />
+	</target>
+
+	<target name="download-log4j" depends="build-tree" unless="have-log4j-jar">
+		<echo message="Downloading LOG4j ${lib.log4j.version}..." />
+		<get src="http://archive.apache.org/dist/logging/log4j/${lib.log4j.version}/log4j-${lib.log4j.version}.jar" verbose="true" dest="${libs.dir}/log4j-${lib.log4j.version}.jar" />
+	</target>
+
+	<target name="download-mysqljdbc" depends="build-tree" unless="have-mysqljdbc-zip">
+		<echo message="Downloading MySQL Connector/J ${lib.mysqljdbc.version}..." />
+		<get src="http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-${lib.mysqljdbc.version}.zip/from/http://cdn.mysql.com/" verbose="true" dest="${download.dir}/mysql-connector-java-${lib.mysqljdbc.version}.zip" />		
+	</target>
+
+	<!-- unless="have-npersistence-jar" -->
+	<target name="download-npersistence" depends="build-tree">
+		<echo message="Downloading npersistence..." />
+		<get src="http://sourceforge.net/projects/npersistence/files/bin/npersistence-0.2a_b7.jar/download" verbose="true" dest="${libs.dir}/npersistence.jar" />		
+	</target>
+
+	<!-- ===========================================================Setup Libs Tasks============================================================================ -->
+
+	<target name="setup-libs-sl4j" depends="download-sl4j" unless="have-sl4j-jars">
+		<echo message="Extracting SL4J ${lib.slf4j.version}..." />
+		<unzip src="${download.dir}/slf4j-${lib.slf4j.version}.zip" dest="${download.tmp}">
+                    <patternset>
+                        <include name="**/slf4j-api-${lib.slf4j.version}.jar"/>
+                        <include name="**/slf4j-log4j${lib.log4j.major.version}-${lib.slf4j.version}.jar"/>
+                    </patternset>		
+                </unzip>
+
+		<move todir="${libs.dir}/">
+			<fileset file="${download.tmp}/slf4j-${lib.slf4j.version}/*.jar" />
+		</move>		
+	</target>			
+
+	<target name="setup-libs-mysqljdbc" depends="download-mysqljdbc" unless="have-mysqljdbc-jar">
+		<echo message="Extracting MySQL Connector/J ${lib.mysqljdbc.version}..." />
+		<unzip src="${download.dir}/mysql-connector-java-${lib.mysqljdbc.version}.zip" dest="${download.tmp}">
+                    <patternset>
+                        <include name="**/mysql-connector-java-${lib.mysqljdbc.version}-bin.jar"/>
+                    </patternset>		
+                </unzip>
+
+		<move todir="${libs.dir}/">
+			<fileset file="${download.tmp}/mysql-connector-java-${lib.mysqljdbc.version}/*.jar" />
+		</move>
+	</target>			
+
+	<target name="database-struct">
+		<echo message="Copying database struct and basic scripts..." />
+		<copy todir="${build.dir}/db">
+			<fileset file="sql/db_structure.sql" />
+			<fileset file="sql/db_user.sql" />
+			<fileset file="sql/*.sh" />
+			<fileset file="sql/*.bat" />			
+		</copy>
+		<chmod file="${build.dir}/sql/*.sh" perm="+x" osfamily="unix" />
+	</target>
+
+	<target name="database-data" unless="!have-db-data">
+		<echo message="Copying database data..." />
+		<copy todir="${build.dir}/db">
+			<fileset file="sql/db_data.sql" />						
+		</copy>
+	</target>
+
+	<target name="database" depends="database-struct, database-data">
+		
+	</target>
+
+	<target name="setup-libs" depends="setup-libs-sl4j, download-npersistence">
+
+	</target>
+        
+	<!-- =================================================================Build================================================================================ -->
+	
+	<target name="build" depends="setup-libs">
+		<ant dir="src/Core" antfile="build.xml" inheritAll="false" target="clean"/>
+		<ant dir="src/Core" antfile="build.xml" inheritAll="false" target="jar"/>
+
+		<ant dir="src/LoginSvr" antfile="build.xml" inheritAll="false" target="clean"/>
+		<ant dir="src/LoginSvr" antfile="build.xml" inheritAll="false" target="jar"/>
+
+		<ant dir="src/ChatSvr" antfile="build.xml" inheritAll="false" target="clean"/>
+		<ant dir="src/ChatSvr" antfile="build.xml" inheritAll="false" target="jar"/>
+
+		<ant dir="src/WorldSvr" antfile="build.xml" inheritAll="false" target="clean"/>
+		<ant dir="src/WorldSvr" antfile="build.xml" inheritAll="false" target="jar"/>
+
+		<copy todir="${build.dir}/lib">
+			<fileset file="libs/*" />
+			<fileset file="src/Core/dist/*.jar" />
+		</copy>
+
+		<copy todir="${build.dir}">
+			<fileset file="src/LoginSvr/dist/*.jar" />
+			<fileset file="src/ChatSvr/dist/*.jar" />
+			<fileset file="src/WorldSvr/dist/*.jar" />
+			<fileset file="res/*.bat" />	
+			<fileset file="LICENSE.txt" />
+			<fileset file="README.md" />
+		</copy>
+
+		<copy todir="${build.dir}/config">
+			<fileset file="config/*" />
+		</copy>
+
+		<copy todir="${build.dir}/db">
+			<fileset file="db/*" />
+		</copy>
+
+		<copy todir="${build.dir}/docs">
+			<fileset file="docs/*" />
+		</copy>
+
+	        <chmod file="${build.dir}/*.jar" perm="+x" osfamily="unix" />
+	</target>
+
+	<!-- ================================================================Release=============================================================================== -->
+	
+	<target name="release" depends="dist-tree, build, setup-libs-mysqljdbc, download-log4j, database">
+		<echo message="Generating dist file in: ${dist.dir}/cronus_emulator_${cronus.version}_bin.zip" />
+		<zip destfile="${dist.dir}/cronus_emulator_${cronus.version}_bin.zip"  basedir="${build.dir}" level="9"/>
+	</target>
+
+</project>
+		
+		

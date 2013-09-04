@@ -1,0 +1,42 @@
+############
+## Netbeans
+############
+
+src\Core\build
+src\Core\dist
+
+src\LoginSvr\build
+src\LoginSvr\dist
+
+src\ChatSvr\build
+src\ChatSvr\dist
+
+src\WorldSvr\build
+src\WorldSvr\dist
+
+############
+## ANT Build
+############
+
+downloads/
+build/
+dist/
+libs/
+
+#############
+## Internal
+#############
+
+sql/db_model.mwb
+sql/db_model.mwb.bak
+sql/db_data.sql
+
+############
+## Windows
+############
+
+# Windows image file caches
+Thumbs.db
+
+# Folder config file
+Desktop.ini
